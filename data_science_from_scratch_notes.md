@@ -794,4 +794,98 @@ PCA can clean data by eliminating noise dimensions and consolidating dimensions 
 after extracting low-dimensional representation of data, we can use a variety of techniques that don't work as well on high-dimensional data  
 while PCA can help you build better models, it can make those models harder to interpret  
 
+# Chapter 11 Machine Learning
+
+
+a `model` is simply a specification of mathematical or probabilistic relationship between different variables  
+
+`machine learning` in this book refers to creating and using models learned from data (aka predictive modeling or data mining)  
+
+`supervised` models has access to data with correct labels  
+`unsupervised` models do not have data with correct labels  
+
+
+`overfitting` is when a model performs well on training data but fails to generalize to new data  
+could be due to noise in data or learning to predict inputs rather than factors/traits in the data  
+
+`underfitting` is when a model doesn't perform well even on training data
+
+the most simple way to combat overfitting it by splitting the data into a training and testing set randomly   
+
+## Correctness
+
+in a binary judgment scenario, we can separate the decisions into four categories:    
+`true positive`, `false positive` (Type 1 Error), `false negative` (Type 2 Error), `true negative`  
+these are represented in a confusion matrix   
+
+
+`accuracy` is defined as the fraction of correct predictions out of the total    
+`precision` is how accurate the positive predictions are $\frac{tp}{tp+fp}$  
+`recall` is the fraction of positives the model identified $\frac{tp}{tp+fn}$  
+sometimes precision and recall are combined into F1 score with $F1 = \frac{2\times p \times r}{p + r}$  
+this is the harmonic mean of precision and recall   
+models have a tradeoff between precision and recall   
+think of as a tradeoff between false positives and false negatives  
+
+`bias-variance trade-off`
+a model that doesn't fit the data well has high bias   
+we can add more features to the model  
+a model could have high variance across datasets   
+
+
+`features` are simply the inputs to the models
+
+# Chapter 12 k-Nearest Neighbors
+suppose you are trying to predict how a person is going to vote and you have some information about their demographic, income, kids, etc. A good predictor is to look at people similar in those dimensions (neighbors) and how they voted  
+
+## The Model
+requires
+* notion of distance
+* assumption that points close to one another are similar
+
+fallbacks
+* neglects a lot of information because predictions only depend on points similar to the input point  
+* is not a clear indicator of the drivers behinds phenomenons
+
+process
+1. decide on a number k
+2. find the k-nearest neighbors and find the majority in a dimensions
+    * pick one of winners at random
+    * weight the votes by distance and pick weighted winner
+    * reduce k by eliminating the farthest until there is a unique winner
+3. return the winner for a given feature
+
+`curse of dimensionality` causes k-nearest neighbors to perform poorly in higher dimensions because such data tends to be sparse and very 'far'  
+
+# Chapter 13 Naive Bayes  
+suppose we are trying to make a spam filter. The key assumption of Naive Bayes is that the presence or absence of each word are independent of one another, conditional on a message being spam or not   
+
+$$P(S|X=x)=\frac{P(X=x|S)}{P(X=x|S) + P(X=x|\neg S)}$$
+
+the assumption allows us to compute each of the probability on the right by multiplying together the probabilities or the partitions  
+
+in practice, underflow is avoided by exponential addition using logs  
+
+to avoid commonly used words becoming one of the identifiers, we use a pseudocount
+
+$$P(X_i |S) = \frac{k + \text{number of spam containing } w_i}{2k + \text{number of spams}}$$
+
+# Chapter 14 Simple Linear Regression
+for linear relationships, hypothesize a linear model  
+$$y_i = \beta x_i + \alpha + \epsilon _i$$
+
+the error between the model and the actual data is calculated using square errors  
+
+we can use the least squares fit as a first try   
+```
+beta = correlation(x, y) * standard_deviation(y) / standard_deviation(x)
+alpha = mean(y) - beta * mean(x)
+```
+
+we can also solve this problem using gradient descent  
+`coefficient of determination (R-squared)` measures the fraction of the total variation in the dependent variable captured by the model  
+
+we use the least squares error because of the `maximum likelihood estimation`, which is largets when alpha and beta are chosen to minimize the sum of squared errors, due to the properties of normal distribution.
+
+
 
