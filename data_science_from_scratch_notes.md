@@ -876,16 +876,124 @@ $$y_i = \beta x_i + \alpha + \epsilon _i$$
 
 the error between the model and the actual data is calculated using square errors  
 
-we can use the least squares fit as a first try   
+Using calculus and partial derivatives, we can find the minimum of the linear model by setting the gradients to zero and solving the system
 ```
 beta = correlation(x, y) * standard_deviation(y) / standard_deviation(x)
 alpha = mean(y) - beta * mean(x)
 ```
+`coefficient of determination (R-squared)` measures the fraction of the total variation in the dependent variable captured by the model  
+it is 1 minus the residual sum of squares divided by the total sum of squares   
 
 we can also solve this problem using gradient descent  
-`coefficient of determination (R-squared)` measures the fraction of the total variation in the dependent variable captured by the model  
+
+```python
+random.seed(0)
+theta = [random.random(), random.random()] # random starting point
+alpha, beta, = minimize_stochastic(squared_error,
+                                   squared_error_gradient, # need to define a gradient function
+                                   num_friends_good, # provide actual data
+                                   daily_minutes_good, 
+                                   theta, 
+                                   0.0001)
+```
 
 we use the least squares error because of the `maximum likelihood estimation`, which is largets when alpha and beta are chosen to minimize the sum of squared errors, due to the properties of normal distribution.
+
+# Chapter 15 Multiple Regression
+
+a linear model with more independent variables  
+the input is a vector of k numbers instead of just one number  
+
+## Further Assumptions of Least Squares Model
+ 
+* the columns of x are linearly independent/ the inputs are unrelated to each other
+* the columns of x are all uncorrelated with the errors
+> suppose the actual model is a function of number of friends and time spent working, 
+> if we hypothesize that the model is only a function of friends, then we underestimate the coefficient for it  
+> whenever independent variables are correlated with errors, the least squares solution gives us a biased estimation
+
+## Fitting the Model
+
+since the model has more than one independent variable, solving by hand with calculus gets tedious, so we use stochastic gradient descent  
+
+- define the error function
+- define the gradient of the error function
+- set a random starting point
+- perform gradient descent
+
+## Interpreting the Model
+
+the coefficients of the model represents the all-else-being-equal estimates of the impacts of each factor  
+this doesn't directly tell us the interactions between the variables  
+we could introduce new variables that are the **products** or **squares** of existing variables
+
+## Goodness of Fit 
+
+adding new variables will increase the R-squared  
+we also need to look at the **standard errors** of the coefficients, which measures how certain we are about our estimates of each
+
+the typical approach to measuring standard errors start with assuming that the unaccounted for error are independent normal random variables with mean 0 and some standard deviation  
+
+## Bootstrapping
+
+sometimes we can't be sure about certain statistics of a dataset (e.g. we don't know the distribution)  
+
+we can solve by `bootstrapping`, or randomly sampling our dataset with replacement  
+this allows us to have distribution-free inferences about the data  
+we can calculate empirically the mean, median, standard deviation, confidence intervals, etc.  
+
+## Standard Errors of Regression Coefficients
+
+we can estimate the standard errors of beta coefficients by taking a sample and estimate beta on that  
+if beta varies a lot (standard deviation across samples is high), then we can't be confident in the estimate  
+
+the estimated beta divided by its standard deviation follows a *Student's t-distribution* with n-k degrees of freedom  
+
+as the degrees of freedom gets large (n >> k), t-distribution approaches a normal distribution  
+
+## Regularization
+
+- the more variables, the more likely the model will overfit
+- the more nonzero coefficients, the harder it is to interpret  
+
+`regularization` is when we add a penalty to the error as the coefficients gets larger  
+
+in *ridge regression*, the penalty is proportional to the sum of squares of beta_i  
+another approach is *lasso regression*, where the penalty is the sum of absolute value of betas multiplied by a constant  
+    this tends to force coefficients to be zero  
+    good for learning sparse models  
+
+# Chapter 16 Logistic Regression
+
+problems with using multiple regression on a binary classification problem
+- the predicted outputs should be 0 or 1, but the outputs of linear model can be huge numbers that are hard to interpret  
+- because the outputs are not bounded, the error term always grows very large in one direction, creating bias  
+
+the logistic function is capped between 0 and 1  
+$$y_i = f(x_i \beta) + \epsilon_i$$
+we can use gradient descent to optimize the function  
+
+first we find the likelihood function and its gradient  
+$$p(y_i|x_i, \beta) = f(x_i \beta)^{y_i}(1- f(x_i \beta))^{1-y_i}$$
+
+it is easier to maximize the log likelihood function
+$$\log L(\beta | x_i, y_i) = y_i \log f(x_i \beta) + (1-y_i) \log (1-f(x_i \beta))$$
+
+if we assume all the data points are independent, then the total likelihood is the product of individual likelihoods  
+the optimized function is hard to interpret, we can only say the general trends of data  
+
+## Support Vector Machines
+
+the boundary between classes is a hyperplane that splits the parameter space into a number of pieces  
+an alternative approach to classification is to look for the hyperplane that best separates the data in the training data  
+`support vector machine` find the hyperplane that maximizes the distance to the near point in each class  
+sometimes a hyperplane might not exist at all  
+sometimes we can get around this by transforming data into a higher-dimensional space  
+
+for example, we can map the point x to (x, x**2)  
+this is known as the **kernel** trick, which we take a function to compute dot products in the higher-dimensional space  
+and find a hyperplane  
+
 
 
 
